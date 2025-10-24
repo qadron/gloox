@@ -8,7 +8,7 @@ class Agent < Tiq::Node
     def initialize(*)
         super
 
-        @spawner = Slotz::Spawner.new
+        @loader = Slotz::Loader.new
     end
 
     def spawn( *args, &block )
@@ -80,7 +80,7 @@ class Agent < Tiq::Node
 
     def spawn2( strategy = nil, *args, &block )
         if !grid_member?
-            @spawner.spawn( *args )
+            @loader.load( *args )
             block.call if block_given?
             return
         end
@@ -92,7 +92,7 @@ class Agent < Tiq::Node
             end
 
             if preferred_url == @url
-                @spawner.spawn( *args )
+                @loader.load( *args )
                 block.call if block_given?
                 next
             end
