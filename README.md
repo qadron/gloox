@@ -61,12 +61,12 @@ end
 
 For the _Add-on_ feature see [Tiq](https://github.com/qadron/tiq?tab=readme-ov-file#add-ons).
 
-### Groups
+### Groups/Channels
 
 You can group and/or assing duty/purpose to your _Agents_ by creating channels/shared structures across them.
 
-There is one such example below, where two Agents share a group named `my_agents`, in addition to the group `data`, 
-used for internal purposes.
+There is one such example below, where two Agents share a group named `my_agents`, in addition to the group `channel`, 
+used for initial/internal purposes.
 
 ```ruby
 require 'gloox'
@@ -75,7 +75,7 @@ n1 = GlooX::Agent.new( url: "localhost:9999" ).start
 n2 = GlooX::Agent.new( url: "localhost:9998", peer: 'localhost:9999' ).start
 
 # Add as many groups/channels/shared-data structures as you want.
-n1.create_group_handler 'my_agents'
+n1.create_channel 'my_agents'
 sleep 1
 
 n2.my_agents.on_set :a1 do |k, v|
