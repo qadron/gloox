@@ -12,6 +12,7 @@ of armed `Tiq::Nodes`.
 They allow for spawning/loading of Processes on remote Nodes, with auto load-balancing
 across their Grid.
 
+`demo.rb:`
 ```ruby
 require 'gloox'
 
@@ -35,6 +36,7 @@ p "--- #{c.preferred}"
 #=> localhost:9997
 ```
 
+`child.rb:`
 ```ruby
 p $options
 class Child
