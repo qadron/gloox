@@ -21,7 +21,7 @@ _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 ## Agents
 
 `GlooX::Agent` offers _Agent_ representations, _server-side_ presences if you must,
-of armed `Tiq::Nodes`.
+of armed `Tiq::Node`s.
 
 They allow for spawning/loading of Processes on remote Nodes, with auto load-balancing
 across their Grid.
