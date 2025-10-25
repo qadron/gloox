@@ -7,7 +7,7 @@ _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 ## Table of Contents
 
 - [Agents](#agents)
-- [Add-ons](#add-ons)
+  - [Add-ons](#add-ons)
 - [Groups](#groups)
 - [Provisioning](#provisioning)
 - [Security](#security)
