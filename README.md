@@ -2,9 +2,7 @@
 
 Bringing [Qadron](https://github.com/qadron) together, as a very special glue.
 
-## Concepts
-
-### Agent
+## Agents
 
 `GlooX::Agent` offers _Agent_ representations, _server-side_ presences if you must,
 of armed `Tiq::Nodes`.
@@ -44,3 +42,52 @@ class Child
 )
 end
 ```
+
+## Groups
+
+You can group and/or assing duty/purpose to your _Agents_ by creating channels/shared structures across them.
+
+There is one such example below, where two Agents share a group named `my_agents`, in addition to the group `data`, 
+used for internal purposes.
+
+```ruby
+require 'gloox'
+
+n1 = GlooX::Agent.new( url: "localhost:9999" ).start
+n2 = GlooX::Agent.new( url: "localhost:9998", peer: 'localhost:9999' ).start
+
+# Add as many groups/channels/shared-data structures as you want.
+n1.create_group_handler 'my_agents'
+sleep 1
+
+n2.my_agents.on_set :a1 do |k, v|
+    p "#{k} => #{v}"
+    # => "a1 => 99"
+end
+
+n1.my_agents.set :a1, 99
+sleep 1
+
+p n2.my_agents.get :a1
+# => 99
+```
+
+## Provisioning
+
+Due to the nature of distributed computing, resource management is key to a happy workflow.
+
+With [Slotz](https://github.com/qadron/slotz), you can set your payloads'/classes' resource requirements (disk, memory)
+beforehand and have your distributed application run smoothly within the Node that was selected automatically as its best home.
+
+
+## Security
+
+All communications are TLS encrypted by default, using [Raktr](https://github.com/qadron/raktr) to facilitate network
+communications for RPC, with RPC being offered by [Toq](https://github.com/qadron/toq).
+
+4 environment variables will have you sleeping safe and sound:
+
+* Certificate Authority (RAKTR_TLS_CA)
+* Private Key (RAKTR_TLS_PRIVATE_KEY)
+* Public Key (RAKTR_TLS_PUBLIC_KEY)
+* Certificate (RAKTR_TLS_CERTIFICATE)
