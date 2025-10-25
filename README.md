@@ -6,7 +6,7 @@
 
 **Lean and mean never fails.**
 
-** Introducing GlooX (Glue-X), your new "cloud" taming solution, under Mozilla Public License v2.**
+**Introducing GlooX (Glue-X), your new "cloud" taming solution, under Mozilla Public License v2.**
 
 _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
