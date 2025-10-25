@@ -2,6 +2,12 @@
 
 **An effort to make distributed computing a joy!**
 
+**Do you really need more, or could you do away with less?**
+
+**Lean and mean never fails.**
+
+** Introducing GlooX (Glue-X), your new "cloud" taming solution, under Mozilla Public License v2.**
+
 _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
 ## Table of Contents
