@@ -6,7 +6,7 @@ _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
 ## Table of Contents
 
-- [Agents](#agents) < [Tiq::Nodes](https://github.com/qadron/tiq)
+- [Agents](#agents) `<` [Tiq::Nodes](https://github.com/qadron/tiq)
   - [Add-ons](#add-ons)
   - [Groups](#groups)
 - [Provisioning](#provisioning)
