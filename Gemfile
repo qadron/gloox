@@ -16,10 +16,22 @@ group :prof do
     gem 'memory_profiler'
 end
 
-gem "toq", path: '../toq'
-gem "slotz", path: '../slotz'
-gem "tiq", path: '../tiq'
-gem "raktr", path: '../raktr'
+if File.exist? '../toq'
+    gem "toq", path: '../toq'
+end
+
+if File.exist? '../slotz'
+    gem "slotz", path: '../slotz'
+end
+
+if File.exist? '../tiq'
+    gem "tiq", path: '../tiq'
+end
+
+if File.exist? '../raktr'
+    gem "raktr", path: '../raktr'
+end
+
 gem 'msgpack'
 
 gemspec
