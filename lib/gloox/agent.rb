@@ -11,15 +11,15 @@ class Agent < Tiq::Node
         @loader = Slotz::Loader.new
     end
 
-    def spawn( *args, &block )
+    def spawn( *args )
         probable_strategy = args.shift
         strategy = probable_strategy.to_s.to_sym
 
         if PREFERENCE_STRATEGIES.include? strategy
-            spawn2( strategy, *args, &block )
+            spawn2( strategy, *args )
         else
             args.unshift probable_strategy
-            spawn2( nil, *args, &block )
+            spawn2( nil, *args )
         end
 
         nil
@@ -81,31 +81,25 @@ class Agent < Tiq::Node
 
     private
 
-    def spawn2( strategy = nil, *args, &block )
+    def spawn2( strategy = nil, *args )
         if !grid_member?
             @loader.load( *args )
-            block.call if block_given?
             return
         end
 
         preferred strategy do |preferred_url|
             if preferred_url.nil?
-                block.call nil
                 next
             end
 
             if preferred_url == @url
                 @loader.load( *args )
-                block.call if block_given?
                 next
             end
 
-            connect_to_peer( preferred_url ).spawn( :direct, *args ) do |result|
-                block.call( result ) if block_given?
-            end
+            connect_to_peer( preferred_url ).spawn( :direct, *args ) {}
         end
 
-        block.call if block_given?
         nil
     end
 end
