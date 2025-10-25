@@ -63,7 +63,7 @@ For the _Add-on_ feature see [Tiq](https://github.com/qadron/tiq?tab=readme-ov-f
 
 ### Groups
 
-You can group and/or assing duty/purpose to your _Agents_ by creating channels/shared structures across them.
+You can group and/or assign duty/purpose to your _Agents_ by creating channels/shared structures across them.
 
 There is one such example below, where two Agents share a group named `my_agents`, in addition to the group `data`, 
 used for internal purposes.
