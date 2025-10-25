@@ -8,7 +8,7 @@ _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
 - [Agents](#agents)
   - [Add-ons](#add-ons)
-- [Groups](#groups)
+  - [Groups](#groups)
 - [Provisioning](#provisioning)
 - [Security](#security)
 
@@ -61,7 +61,7 @@ end
 
 For the _Add-on_ feature see [Tiq](https://github.com/qadron/tiq?tab=readme-ov-file#add-ons).
 
-## Groups
+### Groups
 
 You can group and/or assing duty/purpose to your _Agents_ by creating channels/shared structures across them.
 
