@@ -43,6 +43,10 @@ class Child
 end
 ```
 
+### Add-ons
+
+For the _Add-on_ feature see [Tiq](https://github.com/qadron/tiq?tab=readme-ov-file#add-ons).
+
 ## Groups
 
 You can group and/or assing duty/purpose to your _Agents_ by creating channels/shared structures across them.
