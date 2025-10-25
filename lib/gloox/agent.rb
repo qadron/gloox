@@ -21,6 +21,8 @@ class Agent < Tiq::Node
             args.unshift probable_strategy
             spawn2( nil, *args, &block )
         end
+
+        nil
     end
 
     def utilization
@@ -35,7 +37,7 @@ class Agent < Tiq::Node
         end
 
         if strategy == :direct || !grid_member?
-            block.call( self.utilization == 1 ? nil : @url )
+            block.call( self.utilization >= 1.0 ? nil : @url )
             return
         end
 
@@ -74,6 +76,7 @@ class Agent < Tiq::Node
         end
 
         @reactor.create_iterator( @peers ).map( each, after )
+        nil
     end
 
     private
