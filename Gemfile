@@ -19,6 +19,7 @@ end
 gem "toq", path: '../toq'
 gem "slotz", path: '../slotz'
 gem "tiq", path: '../tiq'
+gem "raktr", path: '../raktr'
 gem 'msgpack'
 
 gemspec
