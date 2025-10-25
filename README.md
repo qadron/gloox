@@ -1,6 +1,8 @@
 # GlooX (pronounced _glue-X_)
 
-Bringing [Qadron](https://github.com/qadron) together, as a very special glue.
+**An effort to make distributed computing a joy!**
+
+_Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
 ## Agents
 
