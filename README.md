@@ -79,6 +79,16 @@ Due to the nature of distributed computing, resource management is key to a happ
 With [Slotz](https://github.com/qadron/slotz), you can set your payloads'/classes' resource requirements (disk, memory)
 beforehand and have your distributed application run smoothly within the Node that was selected automatically as its best home.
 
+```ruby
+require 'slotz'
+
+class MyApp
+    Slotz::Reservation.provision( self,
+        disk:   1 * 1_000_000_000, # bytes
+        memory: 20 * 1_000_000_000 # bytes
+)
+end
+```
 
 ## Security
 
