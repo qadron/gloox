@@ -113,9 +113,14 @@ end
 All communications are TLS encrypted by default, using [Raktr](https://github.com/qadron/raktr) to facilitate network
 communications for RPC, with RPC being offered by [Toq](https://github.com/qadron/toq).
 
-4 environment variables will have you sleeping safe and sound:
+7 environment variables will have you sleeping safe and sound:
 
 * Certificate Authority (`RAKTR_TLS_CA`)
-* Private Key (`RAKTR_TLS_PRIVATE_KEY`)
-* Public Key (`RAKTR_TLS_PUBLIC_KEY`)
-* Certificate (`RAKTR_TLS_CERTIFICATE`)
+* Server
+  * Certificate (`RAKTR_TLS_SERVER_CERTIFICATE`)
+  * Private Key (`RAKTR_TLS_SERVER_PRIVATE_KEY`)
+  * Public Key (`RAKTR_TLS_SERVER_PUBLIC_KEY`)
+* Client
+  * Certificate (`RAKTR_TLS_CLIENT_CERTIFICATE`)
+  * Private Key (`RAKTR_TLS_CLIENT_PRIVATE_KEY`)
+  * Public Key (`RAKTR_TLS_CLIENT_PUBLIC_KEY`)
