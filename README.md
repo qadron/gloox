@@ -2,6 +2,12 @@
 
 **An effort to make distributed computing a joy!**
 
+**Do you really need more, or could you do away with less?**
+
+**Lean and mean never fails.**
+
+**Introducing GlooX, your new "cloud" taming solution, under Mozilla Public License v2.**
+
 _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
 ## Table of Contents
@@ -15,7 +21,7 @@ _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 ## Agents
 
 `GlooX::Agent` offers _Agent_ representations, _server-side_ presences if you must,
-of armed `Tiq::Nodes`.
+of armed `Tiq::Node`s.
 
 They allow for spawning/loading of Processes on remote Nodes, with auto load-balancing
 across their Grid.
