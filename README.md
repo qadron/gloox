@@ -130,3 +130,6 @@ communications for RPC, with RPC being offered by [Toq](https://github.com/qadro
   * Certificate (`RAKTR_TLS_CLIENT_CERTIFICATE`)
   * Private Key (`RAKTR_TLS_CLIENT_PRIVATE_KEY`)
   * Public Key (`RAKTR_TLS_CLIENT_PUBLIC_KEY`)
+
+Helper:
+https://raw.githubusercontent.com/qadron/raktr/refs/heads/master/spec/support/fixtures/pems/generate-tls-certs.sh
