@@ -53,7 +53,8 @@ p "--- #{c.preferred}"
 `child.rb:`
 ```ruby
 p $options
-# => {:e=>27, :ppid=>3407092, :tmpdir=>"/tmp"}
+# => {:execute=>false}
+# => {:e=>27, :ppid=>3164437, :tmpdir=>"/tmp", :execute=>true}
 
 class Child
     Slotz::Reservation.provision( self,
