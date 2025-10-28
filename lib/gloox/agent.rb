@@ -3,7 +3,7 @@ require 'tiq'
 
 module GlooX
 class Agent < Tiq::Node
-    PREFERENCE_STRATEGIES = Set.new([:horizontal, :vertical, :direct])
+    PREFERENCE_STRATEGIES = Set.new([nil, :horizontal, :vertical, :direct])
 
     def initialize(*)
         super

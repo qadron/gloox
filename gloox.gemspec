@@ -29,7 +29,6 @@ Gem::Specification.new do |s|
     s.add_dependency 'bundler'
     s.add_dependency 'slotz'
     s.add_dependency 'tiq'
-    s.add_dependency 'toq'
 
     s.description = <<DESCRIPTION
 DESCRIPTION
