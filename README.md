@@ -59,6 +59,8 @@ sleep 1
 require 'tiq'
 
 p $options
+# => {:url=>"localhost:8888", :parent_url=>"localhost:9999", :ppid=>846068, :tmpdir=>"/tmp", :execute=>true}
+
 class Child < Tiq::Node
   Slotz::Reservation.provision( self,
                                 disk:   1 * 1_000_000_000, # bytes
