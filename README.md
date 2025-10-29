@@ -72,6 +72,7 @@ class Child < Tiq::Node
   end
 end
 
+# Time to execute, sniff was taken care of on prior file inclusion.
 return unless $execute
 
 # Start the child-node server, not included in the Grid, only given its own bind URL.
