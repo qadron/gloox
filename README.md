@@ -30,38 +30,57 @@ across their Grid.
 ```ruby
 require 'gloox'
 
-# Start off with two Agents, in a Grid of their own
-agent  = GlooX::Agent.new( url: 'localhost:9997' ).start
+# Setup a Grid of 2, the children will load-balance and connect to the most available agent.
+agent = GlooX::Agent.new( url: 'localhost:9997' ).start
 agent2 = GlooX::Agent.new( url: 'localhost:9999', peer: 'localhost:9997' ).start
 
-# Connect over the network for RPC.
+# Switchover to network communication over RPC.
 c = Tiq::Client.new( agent2.url )
 
 p c.spawn(
   'Child',
   "#{File.dirname(__FILE__)}/test/child.rb",
-  { e: 27 } # Global options set for the spawned Child.
+  { url: 'localhost:8888', parent_url: 'localhost:9999' }
 )
 
-p c.utilization
-# => 0.7281599728827168
+# Setup the client-side child communication over RPC.
+child_client = Tiq::Client.new( 'localhost:8888' )
 
-p "--- #{c.preferred}"
-#=> localhost:9997
+# Call the child-implemented method over RPC.
+p child_client.all_well?
+# => :yes!
+
+sleep 1
+
 ```
 
 `child.rb:`
 ```ruby
-p $options
-# => {:execute=>false}
-# => {:e=>27, :ppid=>3164437, :tmpdir=>"/tmp", :execute=>true}
+require 'tiq'
 
-class Child
-    Slotz::Reservation.provision( self,
-        disk:   1 * 1_000_000_000, # bytes
-        memory: 20 * 1_000_000_000 # bytes
-)
+p $options
+class Child < Tiq::Node
+  Slotz::Reservation.provision( self,
+                                disk:   1 * 1_000_000_000, # bytes
+                                memory: 1 * 1_000_000_000 # bytes
+  )
+
+  def all_well?
+    :yes!
+  end
 end
+
+return unless $execute
+
+# Start the child-node server, not included in the Grid, only given its own bind URL.
+Child.new( url: $options[:url] ).start
+
+p $options
+# Setup communication to the parent.
+parent = Tiq::Client.new( $options[:parent_url] )
+
+p parent.alive?
+# => true
 ```
 
 ### Add-ons
