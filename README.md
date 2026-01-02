@@ -101,8 +101,11 @@ used for initial/internal purposes.
 ```ruby
 require 'gloox'
 
-n1 = GlooX::Agent.new( url: "localhost:9999" ).start
-n2 = GlooX::Agent.new( url: "localhost:9998", peer: 'localhost:9999' ).start
+n1 = GlooX::Agent.new( url: "0.0.0.0:9999" )
+n1.server.start
+sleep 1
+n2 = GlooX::Agent.new( url: "0.0.0.0:9998", peer: '0.0.0.0:9999' )
+n2.server.start
 
 # Add as many groups/channels/shared-data structures as you want.
 n1.create_channel 'my_agents'
