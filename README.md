@@ -31,8 +31,11 @@ across their Grid.
 require 'gloox'
 
 # Setup a Grid of 2, the children will load-balance and connect to the most available agent.
-agent = GlooX::Agent.new( url: 'localhost:9997' ).start
-agent2 = GlooX::Agent.new( url: 'localhost:9999', peer: 'localhost:9997' ).start
+agent = GlooX::Agent.new( url: '0.0.0.0:9997' )
+agent.server.start
+
+agent2 = GlooX::Agent.new( url: '0.0.0.0:9999', peer: '0.0.0.0:9997' )
+agent2.server.start
 
 # Switchover to network communication over RPC.
 c = Tiq::Client.new( agent2.url )
@@ -51,7 +54,6 @@ p child_client.all_well?
 # => :yes!
 
 sleep 1
-
 ```
 
 `child.rb:`
