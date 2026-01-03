@@ -1,4 +1,6 @@
-require_relative 'gloox/agent'
+module GlooX
+    require_relative 'gloox/utilities'
+    require_relative 'gloox/client'
+    require_relative 'gloox/node'
 
-module Gloox
 end

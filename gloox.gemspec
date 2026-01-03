@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
     s.date              = Time.now.strftime( '%Y-%m-%d' )
     s.summary           = ''
 
-    s.homepage          = 'https://github.com/qadron/cuboid'
+    s.homepage          = 'https://github.com/qadron/gloox'
     s.email             = 'tasos.laskos@gmail.com'
     s.authors           = [ 'Tasos Laskos' ]
     s.licenses          = ['MPL v2']
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
 
     s.add_dependency 'awesome_print',       '1.9.2'
     s.add_dependency 'bundler'
+    s.add_dependency 'msgpack'
     s.add_dependency 'slotz'
     s.add_dependency 'tiq'
 

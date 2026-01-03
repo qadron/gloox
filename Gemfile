@@ -32,6 +32,4 @@ if File.exist? '../raktr'
     gem "raktr", path: '../raktr'
 end
 
-gem 'msgpack'
-
 gemspec

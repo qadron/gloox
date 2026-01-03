@@ -30,58 +30,58 @@ across their Grid.
 ```ruby
 require 'gloox'
 
-# Setup a Grid of 2, the children will load-balance and connect to the most available agent.
-agent = GlooX::Agent.new( url: 'localhost:9997' ).start
-agent2 = GlooX::Agent.new( url: 'localhost:9999', peer: 'localhost:9997' ).start
+# Setup a Grid of 2, the children will load-balance and connect to the most available node.
+node = GlooX::Node.new( url: '0.0.0.0:9997' )
+node.start
+
+node2 = GlooX::Node.new( url: '0.0.0.0:9999', peer: '0.0.0.0:9997' )
+node2.start
 
 # Switchover to network communication over RPC.
-c = Tiq::Client.new( agent2.url )
+c = GlooX::Client.new( url: node2.url )
 
-p c.spawn(
+c.spawn(
   'Child',
-  "#{File.dirname(__FILE__)}/test/child.rb",
-  { url: 'localhost:8888', parent_url: 'localhost:9999' }
+  "#{File.dirname(__FILE__)}/child.rb",
+  { url: '0.0.0.0:8888', parent_url: '0.0.0.0:9999', daemonize: true }
 )
 
 # Setup the client-side child communication over RPC.
-child_client = Tiq::Client.new( 'localhost:8888' )
+child_client = GlooX::Client.new( url: '0.0.0.0:8888' )
 
 # Call the child-implemented method over RPC.
 p child_client.all_well?
 # => :yes!
-
-sleep 1
-
 ```
 
 `child.rb:`
 ```ruby
-require 'tiq'
+require 'gloox'
 
 p $options
 # => {:url=>"localhost:8888", :parent_url=>"localhost:9999", :ppid=>846068, :tmpdir=>"/tmp", :execute=>true}
 
-class Child < Tiq::Node
-  Slotz::Reservation.provision( 
-    self,
-    disk:   1 * 1_000_000_000, # bytes
-    memory: 1 * 1_000_000_000 # bytes
-  )
+class Child < GlooX::Node
+    Slotz::Reservation.provision(
+      self,
+      disk:   1 * 1_000_000_000, # bytes
+      memory: 1 * 1_000_000_000 # bytes
+    )
 
-  def all_well?
-    :yes!
-  end
+    def all_well?
+        :yes!
+    end
 end
 
 # Time to execute, sniff was taken care of on prior file inclusion.
 return unless $execute
 
 # Start the child-node server, not included in the Grid, only given its own bind URL.
-Child.new( url: $options[:url] ).start
+c = Child.new( url: $options[:url] )
+c.start
 
-p $options
 # Setup communication to the parent.
-parent = Tiq::Client.new( $options[:parent_url] )
+parent = GlooX::Client.new( url: $options[:parent_url] )
 
 p parent.alive?
 # => true
@@ -101,22 +101,22 @@ used for initial/internal purposes.
 ```ruby
 require 'gloox'
 
-n1 = GlooX::Agent.new( url: "localhost:9999" ).start
-n2 = GlooX::Agent.new( url: "localhost:9998", peer: 'localhost:9999' ).start
+n1 = GlooX::Node.new( url: "0.0.0.0:9999" ).start
+n2 = GlooX::Node.new( url: "0.0.0.0:9998", peer: '0.0.0.0:9999' ).start
 
 # Add as many groups/channels/shared-data structures as you want.
-n1.create_channel 'my_agents'
+n1.create_channel 'my_nodes'
 sleep 1
 
-n2.my_agents.on_set :a1 do |k, v|
+n2.my_nodes.on_set :a1 do |k, v|
     p "#{k} => #{v}"
     # => "a1 => 99"
 end
 
-n1.my_agents.set :a1, 99
+n1.my_nodes.set :a1, 99
 sleep 1
 
-p n2.my_agents.get :a1
+p n2.my_nodes.get :a1
 # => 99
 ```
 

@@ -2,7 +2,7 @@ require 'slotz'
 require 'tiq'
 
 module GlooX
-class Agent < Tiq::Node
+class Node < Tiq::Node
     PREFERENCE_STRATEGIES = Set.new([nil, :horizontal, :vertical, :direct])
 
     def initialize(*)
@@ -11,15 +11,15 @@ class Agent < Tiq::Node
         @loader = Slotz::Loader.new
     end
 
-    def spawn( *args )
+    def spawn( *args, &block )
         probable_strategy = args.shift
         strategy = probable_strategy.to_s.to_sym
 
         if PREFERENCE_STRATEGIES.include? strategy
-            spawn2( strategy, *args )
+            spawn2( strategy, *args, &block )
         else
             args.unshift probable_strategy
-            spawn2( nil, *args )
+            spawn2( nil, *args, &block )
         end
 
         nil
@@ -81,10 +81,16 @@ class Agent < Tiq::Node
 
     private
 
-    def spawn2( strategy = nil, *args )
+
+    def spawn2( strategy = nil, *args, &block )
         if !grid_member?
-            @loader.load( *args )
-            return
+            pid = @loader.load( *args )
+
+            if block_given?
+                block.call pid
+                return
+            end
+            return pid
         end
 
         preferred strategy do |preferred_url|
@@ -93,14 +99,17 @@ class Agent < Tiq::Node
             end
 
             if preferred_url == @url
-                @loader.load( *args )
-                next
+                pid = @loader.load( *args )
+                block.call pid if block_given?
+                return pid
             end
 
-            connect_to_peer( preferred_url ).spawn( :direct, *args ) {}
+            connect_to_peer( preferred_url ).spawn( :direct, *args, &block )
         end
 
         nil
+    rescue => e
+        ap e
     end
 end
 end

@@ -5,4 +5,4 @@ end
 
 return unless $execute
 
-my_node = MyNode( url: $options[:url] ).start
+my_node = MyNode.new( url: $options[:url] ).server.start
