@@ -12,15 +12,15 @@ _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
 ## Table of Contents
 
-- [GlooX::Agent](#agents) `<` [Tiq::Node](https://github.com/qadron/tiq)
+- [GlooX::Node](#nodes) `<` [Tiq::Node](https://github.com/qadron/tiq)
   - [Add-ons](#add-ons)
   - [Groups](#groups)
 - [Provisioning](#provisioning)
 - [Security](#security)
 
-## Agents
+## Nodes
 
-`GlooX::Agent` offers _Agent_ representations, _server-side_ presences if you must,
+`GlooX::Node` offers _Node_ representations, _server-side_ presences if you must,
 of armed `Tiq::Node`s.
 
 They allow for spawning/loading of Processes on remote Nodes, with auto load-balancing
@@ -93,9 +93,9 @@ For the _Add-on_ feature see [Tiq](https://github.com/qadron/tiq?tab=readme-ov-f
 
 ### Groups/Channels
 
-You can group and/or assign duty/purpose to your _Agents_ by creating channels/shared structures across them.
+You can group and/or assign duty/purpose to your _Nodes_ by creating channels/shared structures across them.
 
-There is one such example below, where two Agents share a group named `my_agents`, in addition to the group `channel`, 
+There is one such example below, where two Nodes share a group named `my_nodes`, in addition to the group `channel`, 
 used for initial/internal purposes.
 
 ```ruby
