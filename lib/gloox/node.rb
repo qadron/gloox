@@ -101,7 +101,7 @@ class Node < Tiq::Node
             if preferred_url == @url
                 pid = @loader.load( *args )
                 block.call pid if block_given?
-                return pid
+                break pid
             end
 
             connect_to_peer( preferred_url ).spawn( :direct, *args, &block )
