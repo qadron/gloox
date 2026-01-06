@@ -84,7 +84,7 @@ class Node < Tiq::Node
 
     def spawn2( strategy = nil, *args, &block )
         if !grid_member?
-            pid = @loader.load( *args )
+            pid = self.load_spawn( *args )
 
             if block_given?
                 block.call pid
@@ -99,7 +99,7 @@ class Node < Tiq::Node
             end
 
             if preferred_url == @url
-                pid = @loader.load( *args )
+                pid = self.load_spawn( *args )
                 block.call pid if block_given?
             else
                 connect_to_peer( preferred_url ).spawn( :direct, *args, &block )
@@ -109,6 +109,10 @@ class Node < Tiq::Node
         nil
     rescue => e
         p e
+    end
+
+    def load_spawn( klass, executable, options = {} )
+        @loader.load( klass, executable, options.merge( node_url: self.url ) )
     end
 end
 end
