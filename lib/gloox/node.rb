@@ -139,12 +139,12 @@ class Node < Tiq::Node
         requirements = {}
         
         # Extract disk requirement
-        if disk_match = requirements_str.match(/disk:\s*(\d+(?:\s*\*\s*\d+)*)/)
+        if disk_match = requirements_str.match(/disk:\s*([0-9_\s*]+)/)
             requirements[:disk] = calculate_value(disk_match[1])
         end
         
         # Extract memory requirement
-        if memory_match = requirements_str.match(/memory:\s*(\d+(?:\s*\*\s*\d+)*)/)
+        if memory_match = requirements_str.match(/memory:\s*([0-9_\s*]+)/)
             requirements[:memory] = calculate_value(memory_match[1])
         end
         
