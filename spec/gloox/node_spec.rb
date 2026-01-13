@@ -70,6 +70,97 @@ RSpec.describe GlooX::Node do
         end.to raise_error(ArgumentError, /Unknown strategy/)
       end
     end
+
+    context 'with resource requirements' do
+      let(:node_instance) { described_class.new(url: "0.0.0.0:#{node_port}") }
+      
+      it 'filters out nodes without sufficient resources' do
+        allow(node_instance).to receive(:available_resources).and_return(
+          disk: 500_000_000,
+          memory: 500_000_000
+        )
+        
+        requirements = { disk: 1_000_000_000, memory: 1_000_000_000 }
+        
+        node_instance.preferred(:direct, requirements) do |url|
+          expect(url).to be_nil
+        end
+      end
+      
+      it 'returns URL when node has sufficient resources' do
+        allow(node_instance).to receive(:available_resources).and_return(
+          disk: 10_000_000_000,
+          memory: 10_000_000_000
+        )
+        allow(node_instance).to receive(:utilization).and_return(0.5)
+        
+        requirements = { disk: 1_000_000_000, memory: 1_000_000_000 }
+        
+        node_instance.preferred(:direct, requirements) do |url|
+          expect(url).not_to be_nil
+        end
+      end
+    end
+  end
+
+  describe '#peek_file_requirements' do
+    let(:node_instance) { described_class.new(url: "0.0.0.0:#{node_port}") }
+    let(:test_file) { "#{File.dirname(__FILE__)}/../support/fixtures/child_node_with_resources.rb" }
+    
+    it 'extracts resource requirements from a file' do
+      requirements = node_instance.send(:peek_file_requirements, test_file)
+      
+      expect(requirements).not_to be_nil
+      expect(requirements[:disk]).to eq(1_000_000_000)
+      expect(requirements[:memory]).to eq(1_000_000_000)
+    end
+    
+    it 'returns nil for files without resource requirements' do
+      simple_file = "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"
+      requirements = node_instance.send(:peek_file_requirements, simple_file)
+      
+      expect(requirements).to be_nil
+    end
+    
+    it 'returns nil for non-existent files' do
+      requirements = node_instance.send(:peek_file_requirements, '/non/existent/file.rb')
+      
+      expect(requirements).to be_nil
+    end
+  end
+
+  describe '#fits_available_resources?' do
+    let(:node_instance) { described_class.new(url: "0.0.0.0:#{node_port}") }
+    
+    it 'returns true when requirements fit' do
+      allow(node_instance).to receive(:available_resources).and_return(
+        disk: 10_000_000_000,
+        memory: 10_000_000_000
+      )
+      
+      requirements = { disk: 1_000_000_000, memory: 1_000_000_000 }
+      expect(node_instance.send(:fits_available_resources?, requirements)).to be true
+    end
+    
+    it 'returns false when disk requirement exceeds available' do
+      allow(node_instance).to receive(:available_resources).and_return(
+        disk: 500_000_000,
+        memory: 10_000_000_000
+      )
+      
+      requirements = { disk: 1_000_000_000, memory: 1_000_000_000 }
+      expect(node_instance.send(:fits_available_resources?, requirements)).to be false
+    end
+    
+    it 'returns false when memory requirement exceeds available' do
+      allow(node_instance).to receive(:available_resources).and_return(
+        disk: 10_000_000_000,
+        memory: 500_000_000
+      )
+      
+      requirements = { disk: 1_000_000_000, memory: 1_000_000_000 }
+      expect(node_instance.send(:fits_available_resources?, requirements)).to be false
+    end
   end
 
 end
