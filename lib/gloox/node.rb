@@ -112,7 +112,61 @@ class Node < Tiq::Node
     end
 
     def load_spawn( klass, executable, options = {} )
+        # Check if file fits into available resources before loading
+        requirements = peek_file_requirements( executable )
+        if requirements && !fits_available_resources?( requirements )
+            raise Slotz::InsufficientResourcesError,
+                  "Insufficient resources to spawn #{klass}. " \
+                  "Required: #{requirements}, Available: #{available_resources}"
+        end
+
         @loader.load( klass, executable, options.merge( node_url: self.url ) )
+    end
+
+    # Peek into the file to extract resource requirements
+    def peek_file_requirements( executable )
+        return nil unless File.exist?( executable )
+
+        content = File.read( executable )
+        
+        # Look for Slotz::Reservation.provision calls
+        # Example: Slotz::Reservation.provision(self, disk: 1000, memory: 2000)
+        match = content.match(/Slotz::Reservation\.provision\s*\(\s*[^,]+,\s*([^)]+)\)/)
+        return nil unless match
+
+        # Parse the requirements hash
+        requirements_str = match[1]
+        requirements = {}
+        
+        # Extract disk requirement
+        if disk_match = requirements_str.match(/disk:\s*(\d+(?:\s*\*\s*\d+)*)/)
+            requirements[:disk] = eval(disk_match[1])
+        end
+        
+        # Extract memory requirement
+        if memory_match = requirements_str.match(/memory:\s*(\d+(?:\s*\*\s*\d+)*)/)
+            requirements[:memory] = eval(memory_match[1])
+        end
+        
+        requirements.empty? ? nil : requirements
+    end
+
+    # Check if requirements fit into available resources
+    def fits_available_resources?( requirements )
+        available = available_resources
+        
+        return false if requirements[:disk] && requirements[:disk] > available[:disk]
+        return false if requirements[:memory] && requirements[:memory] > available[:memory]
+        
+        true
+    end
+
+    # Get available system resources
+    def available_resources
+        {
+            disk: Slotz.available_disk,
+            memory: Slotz.available_memory
+        }
     end
 end
 end
