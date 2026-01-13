@@ -69,9 +69,11 @@ RSpec.describe Gloox::Utilities do
 
     it 'is thread-safe' do
       ports = []
+      mutex = Mutex.new
       threads = 5.times.map do
         Thread.new do
-          ports << test_instance.available_port([50001, 60000])
+          port = test_instance.available_port([50001, 60000])
+          mutex.synchronize { ports << port }
         end
       end
       threads.each(&:join)
