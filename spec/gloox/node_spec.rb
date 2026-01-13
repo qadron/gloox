@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe GlooX::Node do
   let(:node_port) { 9999 }
   let(:node) { described_class.new(url: "0.0.0.0:#{node_port}" ) }
+  let(:client) { GlooX::Client.new url: node.url }
   let(:spawn_options) do
       [
         'MyNode',
@@ -29,21 +30,18 @@ RSpec.describe GlooX::Node do
 
   describe '#spawn' do
     it 'spawns a process with default strategy' do
-        pending
-      expect { node.spawn( *spawn_options ) }.not_to raise_error
+      expect { client.spawn( *spawn_options ) }.not_to raise_error
     end
 
     it 'spawns a process with default strategy' do
-      node.spawn( *spawn_options )
-      sleep 1
+      client.spawn( *spawn_options )
+      sleep 3
 
-      client = Tiq::Client.new( 'localhost:8888' )
       expect(client.alive?).to be_truthy
     end
 
     it 'raises an error for an unknown strategy' do
-        pending
-        expect { node.spawn(:unknown, 'Child', 'child.rb', { e: 27 }) }.to raise_error(ArgumentError, /Unknown strategy/)
+        expect { client.spawn('Child', 'child.rb', { e: 27 }, :unknown_strategy) }.to raise_error(ArgumentError, /Unknown strategy/)
     end
   end
 
@@ -56,17 +54,21 @@ RSpec.describe GlooX::Node do
   describe '#preferred' do
     context 'with a valid strategy' do
       it 'returns the preferred URL' do
-        node.start
-        node.preferred(:horizontal) do |url|
-          expect(url).to eq('localhost:9997')
-        end
+        options = ['MyNode',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+
+        url = client.preferred(*(options | [:horizontal]))
+        expect(url).to eq("0.0.0.0:#{node_port}")
       end
     end
 
     context 'with an invalid strategy' do
       it 'raises an error' do
+        options = ['MyNode',
+                   "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+
         expect do
-          node.preferred(:invalid) {}
+          client.preferred(*(options | [:invalid]))
         end.to raise_error(ArgumentError, /Unknown strategy/)
       end
     end
