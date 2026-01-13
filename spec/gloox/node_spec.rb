@@ -37,7 +37,7 @@ RSpec.describe GlooX::Node do
       node.spawn( *spawn_options )
       sleep 3
 
-      client = Tiq::Client.new( 'localhost:8888' )
+      client = Tiq::Client.new( '127.0.0.1:8888' )
       expect(client.alive?).to be_truthy
     end
 
