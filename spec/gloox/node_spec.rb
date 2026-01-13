@@ -70,6 +70,37 @@ RSpec.describe GlooX::Node do
         end.to raise_error(ArgumentError, /Unknown strategy/)
       end
     end
+
+    context 'with resource requirements' do
+      let(:node_instance) { described_class.new(url: "0.0.0.0:#{node_port}") }
+      
+      it 'filters out nodes without sufficient resources' do
+        allow(node_instance).to receive(:available_resources).and_return(
+          disk: 500_000_000,
+          memory: 500_000_000
+        )
+        
+        requirements = { disk: 1_000_000_000, memory: 1_000_000_000 }
+        
+        node_instance.preferred(:direct, requirements) do |url|
+          expect(url).to be_nil
+        end
+      end
+      
+      it 'returns URL when node has sufficient resources' do
+        allow(node_instance).to receive(:available_resources).and_return(
+          disk: 10_000_000_000,
+          memory: 10_000_000_000
+        )
+        allow(node_instance).to receive(:utilization).and_return(0.5)
+        
+        requirements = { disk: 1_000_000_000, memory: 1_000_000_000 }
+        
+        node_instance.preferred(:direct, requirements) do |url|
+          expect(url).not_to be_nil
+        end
+      end
+    end
   end
 
   describe '#peek_file_requirements' do

@@ -29,7 +29,7 @@ class Node < Tiq::Node
         Slotz.utilization
     end
 
-    def preferred( strategy = nil, &block )
+    def preferred( strategy = nil, required_resources = nil, &block )
         strategy = (strategy || :vertical).to_sym
         if !PREFERENCE_STRATEGIES.include? strategy
             block.call :error_unknown_strategy
@@ -37,7 +37,12 @@ class Node < Tiq::Node
         end
 
         if strategy == :direct || !grid_member?
-            block.call( self.utilization >= 1.0 ? nil : @url )
+            # Check if local node has sufficient resources
+            if required_resources && !fits_available_resources?( required_resources )
+                block.call( nil )
+            else
+                block.call( self.utilization >= 1.0 ? nil : @url )
+            end
             return
         end
 
@@ -66,7 +71,26 @@ class Node < Tiq::Node
             nodes << pick_utilization.call( @url, self.utilization )
             nodes.compact!
 
-            # All nodes are at max utilization, pass.
+            # Filter out nodes that don't have sufficient resources
+            if required_resources
+                nodes.select! do |url, _|
+                    if url == @url
+                        fits_available_resources?( required_resources )
+                    else
+                        # Check remote node's available resources
+                        begin
+                            remote_available = connect_to_peer( url ).available_resources
+                            remote_available[:disk] >= (required_resources[:disk] || 0) &&
+                              remote_available[:memory] >= (required_resources[:memory] || 0)
+                        rescue
+                            # If we can't check remote resources, exclude the node
+                            false
+                        end
+                    end
+                end
+            end
+
+            # All nodes are at max utilization or lack resources, pass.
             if nodes.empty?
                 block.call
                 next
@@ -83,7 +107,18 @@ class Node < Tiq::Node
 
 
     def spawn2( strategy = nil, *args, &block )
+        # Extract resource requirements from the file before selecting a node
+        klass, executable, options = args
+        required_resources = peek_file_requirements( executable )
+
         if !grid_member?
+            # Check if local node has sufficient resources
+            if required_resources && !fits_available_resources?( required_resources )
+                raise Slotz::InsufficientResourcesError,
+                      "Insufficient resources to spawn #{klass}. " \
+                      "Required: #{required_resources}, Available: #{available_resources}"
+            end
+
             pid = self.load_spawn( *args )
 
             if block_given?
@@ -93,8 +128,12 @@ class Node < Tiq::Node
             return pid
         end
 
-        preferred strategy do |preferred_url|
+        preferred strategy, required_resources do |preferred_url|
             if preferred_url.nil?
+                # No node with sufficient resources available
+                if block_given?
+                    block.call nil
+                end
                 next
             end
 
@@ -112,14 +151,8 @@ class Node < Tiq::Node
     end
 
     def load_spawn( klass, executable, options = {} )
-        # Check if file fits into available resources before loading
-        requirements = peek_file_requirements( executable )
-        if requirements && !fits_available_resources?( requirements )
-            raise Slotz::InsufficientResourcesError,
-                  "Insufficient resources to spawn #{klass}. " \
-                  "Required: #{requirements}, Available: #{available_resources}"
-        end
-
+        # Resource checking is done in spawn2 before node selection
+        # This ensures only nodes with sufficient resources are considered
         @loader.load( klass, executable, options.merge( node_url: self.url ) )
     end
 
@@ -129,22 +162,22 @@ class Node < Tiq::Node
 
         content = File.read( executable )
         
-        # Look for Slotz::Reservation.provision calls
+        # Look for Slotz::Reservation.provision calls (may be multi-line)
         # Example: Slotz::Reservation.provision(self, disk: 1000, memory: 2000)
-        match = content.match(/Slotz::Reservation\.provision\s*\(\s*[^,]+,\s*([^)]+)\)/)
+        match = content.match(/Slotz::Reservation\.provision\s*\(\s*[^,]+,\s*([^)]+)\)/m)
         return nil unless match
 
         # Parse the requirements hash
         requirements_str = match[1]
         requirements = {}
         
-        # Extract disk requirement
-        if disk_match = requirements_str.match(/disk:\s*([0-9_\s*]+)/)
+        # Extract disk requirement - matches numbers, underscores, spaces, and * operator
+        if disk_match = requirements_str.match(/disk:\s*([\d_\s*]+)/)
             requirements[:disk] = calculate_value(disk_match[1])
         end
         
-        # Extract memory requirement
-        if memory_match = requirements_str.match(/memory:\s*([0-9_\s*]+)/)
+        # Extract memory requirement - matches numbers, underscores, spaces, and * operator
+        if memory_match = requirements_str.match(/memory:\s*([\d_\s*]+)/)
             requirements[:memory] = calculate_value(memory_match[1])
         end
         
@@ -152,6 +185,7 @@ class Node < Tiq::Node
     end
 
     # Safely calculate numeric expressions (e.g., "1 * 1_000_000_000")
+    # Only supports simple multiplication of positive integers
     def calculate_value( expression )
         # Remove spaces and underscores for parsing
         cleaned = expression.gsub(/[\s_]/, '')
@@ -159,6 +193,8 @@ class Node < Tiq::Node
         # Support simple multiplication expressions like "1*1000000000"
         if cleaned.include?('*')
             parts = cleaned.split('*').map(&:to_i)
+            # Validate all parts are positive
+            return 0 if parts.any? { |p| p <= 0 }
             parts.reduce(:*)
         else
             cleaned.to_i
