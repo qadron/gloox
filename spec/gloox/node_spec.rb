@@ -41,7 +41,7 @@ RSpec.describe GlooX::Node do
     end
 
     it 'raises an error for an unknown strategy' do
-        expect { client.spawn('Child', 'child.rb', { e: 27 }, :unknown_strategy) }.to raise_error(ArgumentError, /Unknown strategy/)
+      expect(client.spawn('Child', 'child.rb', { e: 27 }, :unknown_strategy)).to be :error_unknown_strategy
     end
   end
 
@@ -67,9 +67,7 @@ RSpec.describe GlooX::Node do
         options = ['MyNode',
                    "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
 
-        expect do
-          client.preferred(*(options | [:invalid]))
-        end.to raise_error(ArgumentError, /Unknown strategy/)
+        expect(client.preferred(*(options | [:invalid]))).to be :error_unknown_strategy
       end
     end
   end
