@@ -29,6 +29,14 @@ class Node < Tiq::Node
         Slotz.utilization
     end
 
+    # Get available system resources (exposed for remote RPC calls)
+    def available_resources
+        {
+            disk: Slotz.available_disk,
+            memory: Slotz.available_memory
+        }
+    end
+
     def preferred( strategy = nil, required_resources = nil, &block )
         strategy = (strategy || :vertical).to_sym
         if !PREFERENCE_STRATEGIES.include? strategy
@@ -172,13 +180,15 @@ class Node < Tiq::Node
         requirements = {}
         
         # Extract disk requirement - matches numbers, underscores, spaces, and * operator
-        if disk_match = requirements_str.match(/disk:\s*([\d_\s*]+)/)
-            requirements[:disk] = calculate_value(disk_match[1])
+        if disk_match = requirements_str.match(/disk:\s*([\d_]+(?:\s*\*\s*[\d_]+)*)/)
+            disk_value = calculate_value(disk_match[1])
+            requirements[:disk] = disk_value if disk_value
         end
         
         # Extract memory requirement - matches numbers, underscores, spaces, and * operator
-        if memory_match = requirements_str.match(/memory:\s*([\d_\s*]+)/)
-            requirements[:memory] = calculate_value(memory_match[1])
+        if memory_match = requirements_str.match(/memory:\s*([\d_]+(?:\s*\*\s*[\d_]+)*)/)
+            memory_value = calculate_value(memory_match[1])
+            requirements[:memory] = memory_value if memory_value
         end
         
         requirements.empty? ? nil : requirements
@@ -194,10 +204,12 @@ class Node < Tiq::Node
         if cleaned.include?('*')
             parts = cleaned.split('*').map(&:to_i)
             # Validate all parts are positive
-            return 0 if parts.any? { |p| p <= 0 }
+            return nil if parts.any? { |p| p <= 0 }
             parts.reduce(:*)
         else
-            cleaned.to_i
+            value = cleaned.to_i
+            # Return nil if parsing failed (e.g., non-numeric input)
+            value > 0 ? value : nil
         end
     end
 
@@ -209,14 +221,6 @@ class Node < Tiq::Node
         return false if requirements[:memory] && requirements[:memory] > available[:memory]
         
         true
-    end
-
-    # Get available system resources
-    def available_resources
-        {
-            disk: Slotz.available_disk,
-            memory: Slotz.available_memory
-        }
     end
 end
 end
