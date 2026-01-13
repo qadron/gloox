@@ -4,6 +4,8 @@ require 'tiq'
 module GlooX
 class Node < Tiq::Node
     PREFERENCE_STRATEGIES = Set.new([nil, :horizontal, :vertical, :direct])
+    # Regex pattern for matching numeric expressions with underscores and multiplication
+    NUMERIC_EXPRESSION_PATTERN = /[\d_]+(?:\s*\*\s*[\d_]+)*/
 
     def initialize(*)
         super
@@ -172,21 +174,21 @@ class Node < Tiq::Node
         
         # Look for Slotz::Reservation.provision calls (may be multi-line)
         # Example: Slotz::Reservation.provision(self, disk: 1000, memory: 2000)
-        match = content.match(/Slotz::Reservation\.provision\s*\(\s*[^,]+,\s*([^)]+)\)/m)
+        match = content.match(/Slotz::Reservation\.provision\s*\(\s*(?:self|\w+),\s*([^)]+)\)/m)
         return nil unless match
 
         # Parse the requirements hash
         requirements_str = match[1]
         requirements = {}
         
-        # Extract disk requirement - matches numbers, underscores, spaces, and * operator
-        if disk_match = requirements_str.match(/disk:\s*([\d_]+(?:\s*\*\s*[\d_]+)*)/)
+        # Extract disk requirement using shared pattern
+        if disk_match = requirements_str.match(/disk:\s*(#{NUMERIC_EXPRESSION_PATTERN})/)
             disk_value = calculate_value(disk_match[1])
             requirements[:disk] = disk_value if disk_value
         end
         
-        # Extract memory requirement - matches numbers, underscores, spaces, and * operator
-        if memory_match = requirements_str.match(/memory:\s*([\d_]+(?:\s*\*\s*[\d_]+)*)/)
+        # Extract memory requirement using shared pattern
+        if memory_match = requirements_str.match(/memory:\s*(#{NUMERIC_EXPRESSION_PATTERN})/)
             memory_value = calculate_value(memory_match[1])
             requirements[:memory] = memory_value if memory_value
         end
@@ -196,19 +198,23 @@ class Node < Tiq::Node
 
     # Safely calculate numeric expressions (e.g., "1 * 1_000_000_000")
     # Only supports simple multiplication of positive integers
+    # Returns nil for invalid or zero values (resources must be > 0)
     def calculate_value( expression )
         # Remove spaces and underscores for parsing
         cleaned = expression.gsub(/[\s_]/, '')
         
+        # Validate the expression contains only digits and optional multiplication
+        return nil unless cleaned.match?(/\A\d+(?:\*\d+)*\z/)
+        
         # Support simple multiplication expressions like "1*1000000000"
         if cleaned.include?('*')
             parts = cleaned.split('*').map(&:to_i)
-            # Validate all parts are positive
-            return nil if parts.any? { |p| p <= 0 }
+            # Reject if any part is zero (resources must be positive)
+            return nil if parts.any?(&:zero?)
             parts.reduce(:*)
         else
             value = cleaned.to_i
-            # Return nil if parsing failed (e.g., non-numeric input)
+            # Return nil for zero (resources must be positive)
             value > 0 ? value : nil
         end
     end
