@@ -35,9 +35,9 @@ RSpec.describe GlooX::Node do
 
     it 'spawns a process with default strategy' do
       node.spawn( *spawn_options )
-      sleep 1
+      sleep 3
 
-      client = Tiq::Client.new( 'localhost:8888' )
+      client = Tiq::Client.new( '127.0.0.1:8888' )
       expect(client.alive?).to be_truthy
     end
 
@@ -56,9 +56,8 @@ RSpec.describe GlooX::Node do
   describe '#preferred' do
     context 'with a valid strategy' do
       it 'returns the preferred URL' do
-        node.start
         node.preferred(:horizontal) do |url|
-          expect(url).to eq('localhost:9997')
+          expect(url).to eq("0.0.0.0:#{node_port}")
         end
       end
     end
