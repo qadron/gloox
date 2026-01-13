@@ -140,15 +140,29 @@ class Node < Tiq::Node
         
         # Extract disk requirement
         if disk_match = requirements_str.match(/disk:\s*(\d+(?:\s*\*\s*\d+)*)/)
-            requirements[:disk] = eval(disk_match[1])
+            requirements[:disk] = calculate_value(disk_match[1])
         end
         
         # Extract memory requirement
         if memory_match = requirements_str.match(/memory:\s*(\d+(?:\s*\*\s*\d+)*)/)
-            requirements[:memory] = eval(memory_match[1])
+            requirements[:memory] = calculate_value(memory_match[1])
         end
         
         requirements.empty? ? nil : requirements
+    end
+
+    # Safely calculate numeric expressions (e.g., "1 * 1_000_000_000")
+    def calculate_value( expression )
+        # Remove spaces and underscores for parsing
+        cleaned = expression.gsub(/[\s_]/, '')
+        
+        # Support simple multiplication expressions like "1*1000000000"
+        if cleaned.include?('*')
+            parts = cleaned.split('*').map(&:to_i)
+            parts.reduce(:*)
+        else
+            cleaned.to_i
+        end
     end
 
     # Check if requirements fit into available resources
