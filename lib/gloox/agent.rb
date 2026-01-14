@@ -1,4 +1,5 @@
 require 'slotz'
+require 'slotz/loader'
 require 'tiq'
 
 module GlooX
@@ -8,7 +9,7 @@ class Agent < Tiq::Node
     def initialize(*)
         super
 
-        @loader = Slotz::Loader.new
+        @loader = ::Slotz::Loader.new
     end
 
     def spawn( klass, path, options = {}, strategy = nil, &block )
