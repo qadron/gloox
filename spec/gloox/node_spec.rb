@@ -70,6 +70,64 @@ RSpec.describe GlooX::Node do
         expect(client.preferred(*(options | [:invalid]))).to be :error_unknown_strategy
       end
     end
+
+    context 'with vertical strategy' do
+      it 'returns a URL for vertical scaling' do
+        options = ['MyNode',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+
+        url = client.preferred(*(options | [:vertical]))
+        expect(url).to eq("0.0.0.0:#{node_port}")
+      end
+    end
+
+    context 'with direct strategy' do
+      it 'returns the current node URL' do
+        options = ['MyNode',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+
+        url = client.preferred(*(options | [:direct]))
+        expect(url).to eq("0.0.0.0:#{node_port}")
+      end
+    end
+
+    context 'with nil strategy (defaults to vertical)' do
+      it 'returns a URL' do
+        options = ['MyNode',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+
+        url = client.preferred(*options)
+        expect(url).to eq("0.0.0.0:#{node_port}")
+      end
+    end
+  end
+
+  describe '#fits?' do
+    it 'returns true when a class fits on the node' do
+      result = node.fits?('MyNode', "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb")
+      expect(result).to be_truthy
+    end
+
+    it 'works with callback block' do
+      result = nil
+      node.fits?('MyNode', "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb") do |fits|
+        result = fits
+      end
+      expect(result).to be_truthy
+    end
+  end
+
+  describe 'PREFERENCE_STRATEGIES constant' do
+    it 'includes expected strategies' do
+      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(nil)
+      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(:horizontal)
+      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(:vertical)
+      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(:direct)
+    end
+
+    it 'is a Set' do
+      expect(GlooX::Node::PREFERENCE_STRATEGIES).to be_a(Set)
+    end
   end
 
 end

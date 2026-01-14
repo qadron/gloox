@@ -7,7 +7,7 @@ module Utilities
     available_port_mutex
 
     def available_port( range = nil )
-        available_port_mutex.synchronize do
+        Gloox::Utilities.available_port_mutex.synchronize do
             loop do
                 port = self.random_port( range )
                 return port if port_available?( port )
