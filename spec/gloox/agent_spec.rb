@@ -2,14 +2,14 @@
 
 require 'spec_helper'
 
-RSpec.describe GlooX::Node do
+RSpec.describe GlooX::Agent do
   let(:node_port) { 9999 }
   let(:node) { described_class.new(url: "0.0.0.0:#{node_port}" ) }
   let(:client) { GlooX::Client.new url: node.url }
   let(:spawn_options) do
       [
-        'MyNode',
-        "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb",
+        'MyAgent',
+        "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb",
         { url: '0.0.0.0:8888' }
       ]
   end
@@ -54,8 +54,8 @@ RSpec.describe GlooX::Node do
   describe '#preferred' do
     context 'with a valid strategy' do
       it 'returns the preferred URL' do
-        options = ['MyNode',
-          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+        options = ['MyAgent',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*(options | [:horizontal]))
         expect(url).to eq("0.0.0.0:#{node_port}")
@@ -64,8 +64,8 @@ RSpec.describe GlooX::Node do
 
     context 'with an invalid strategy' do
       it 'raises an error' do
-        options = ['MyNode',
-                   "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+        options = ['MyAgent',
+                   "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         expect(client.preferred(*(options | [:invalid]))).to be :error_unknown_strategy
       end
@@ -73,8 +73,8 @@ RSpec.describe GlooX::Node do
 
     context 'with vertical strategy' do
       it 'returns a URL for vertical scaling' do
-        options = ['MyNode',
-          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+        options = ['MyAgent',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*(options | [:vertical]))
         expect(url).to eq("0.0.0.0:#{node_port}")
@@ -83,8 +83,8 @@ RSpec.describe GlooX::Node do
 
     context 'with direct strategy' do
       it 'returns the current node URL' do
-        options = ['MyNode',
-          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+        options = ['MyAgent',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*(options | [:direct]))
         expect(url).to eq("0.0.0.0:#{node_port}")
@@ -93,8 +93,8 @@ RSpec.describe GlooX::Node do
 
     context 'with nil strategy (defaults to vertical)' do
       it 'returns a URL' do
-        options = ['MyNode',
-          "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb"]
+        options = ['MyAgent',
+          "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*options)
         expect(url).to eq("0.0.0.0:#{node_port}")
@@ -104,13 +104,13 @@ RSpec.describe GlooX::Node do
 
   describe '#fits?' do
     it 'returns true when a class fits on the node' do
-      result = node.fits?('MyNode', "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb")
+      result = node.fits?('MyAgent', "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb")
       expect(result).to be_truthy
     end
 
     it 'works with callback block' do
       result = nil
-      node.fits?('MyNode', "#{File.dirname(__FILE__)}/../support/fixtures/child_node.rb") do |fits|
+      node.fits?('MyAgent', "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb") do |fits|
         result = fits
       end
       expect(result).to be_truthy
@@ -119,14 +119,14 @@ RSpec.describe GlooX::Node do
 
   describe 'PREFERENCE_STRATEGIES constant' do
     it 'includes expected strategies' do
-      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(nil)
-      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(:horizontal)
-      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(:vertical)
-      expect(GlooX::Node::PREFERENCE_STRATEGIES).to include(:direct)
+      expect(GlooX::Agent::PREFERENCE_STRATEGIES).to include(nil)
+      expect(GlooX::Agent::PREFERENCE_STRATEGIES).to include(:horizontal)
+      expect(GlooX::Agent::PREFERENCE_STRATEGIES).to include(:vertical)
+      expect(GlooX::Agent::PREFERENCE_STRATEGIES).to include(:direct)
     end
 
     it 'is a Set' do
-      expect(GlooX::Node::PREFERENCE_STRATEGIES).to be_a(Set)
+      expect(GlooX::Agent::PREFERENCE_STRATEGIES).to be_a(Set)
     end
   end
 

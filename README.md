@@ -12,15 +12,15 @@ _Bringing [Qadron](https://github.com/qadron) together, as a very special glue._
 
 ## Table of Contents
 
-- [GlooX::Node](#nodes) `<` [Tiq::Node](https://github.com/qadron/tiq)
+- [GlooX::Agent](#agents) `<` [Tiq::Node](https://github.com/qadron/tiq)
   - [Add-ons](#add-ons)
   - [Groups](#groups)
 - [Provisioning](#provisioning)
 - [Security](#security)
 
-## Nodes
+## Agents
 
-`GlooX::Node` offers _Node_ representations, _server-side_ presences if you must,
+`GlooX::Agent` offers _Node_ representations, _server-side_ presences if you must,
 of armed `Tiq::Node`s.
 
 They allow for spawning/loading of Processes on remote Nodes, with auto load-balancing
@@ -31,10 +31,10 @@ across their Grid.
 require 'gloox'
 
 # Setup a Grid of 2, the children will load-balance and connect to the most available node.
-node = GlooX::Node.new( url: '0.0.0.0:9997' )
+node = GlooX::Agent.new( url: '0.0.0.0:9997' )
 node.start
 
-node2 = GlooX::Node.new( url: '0.0.0.0:9999', peer: '0.0.0.0:9997' )
+node2 = GlooX::Agent.new( url: '0.0.0.0:9999', peer: '0.0.0.0:9997' )
 node2.start
 
 # Switchover to network communication over RPC.
@@ -61,7 +61,7 @@ require 'gloox'
 p $options
 # => {:url=>"localhost:8888", :parent_url=>"localhost:9999", :ppid=>846068, :tmpdir=>"/tmp", :execute=>true}
 
-class Child < GlooX::Node
+class Child < GlooX::Agent
     Slotz::Reservation.provision(
       self,
       disk:   1 * 1_000_000_000, # bytes
@@ -101,8 +101,8 @@ used for initial/internal purposes.
 ```ruby
 require 'gloox'
 
-n1 = GlooX::Node.new( url: "0.0.0.0:9999" ).start
-n2 = GlooX::Node.new( url: "0.0.0.0:9998", peer: '0.0.0.0:9999' ).start
+n1 = GlooX::Agent.new( url: "0.0.0.0:9999" ).start
+n2 = GlooX::Agent.new( url: "0.0.0.0:9998", peer: '0.0.0.0:9999' ).start
 
 # Add as many groups/channels/shared-data structures as you want.
 n1.create_channel 'my_nodes'

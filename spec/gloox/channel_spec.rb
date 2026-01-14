@@ -2,9 +2,9 @@
 
 require 'spec_helper'
 
-RSpec.describe 'GlooX Groups' do
-  let(:node1) { GlooX::Node.new(url: '0.0.0.0:9999').start }
-  let(:node2) { GlooX::Node.new(url: '0.0.0.0:9998', peer: '0.0.0.0:9999').start }
+RSpec.describe 'GlooX channel' do
+  let(:node1) { GlooX::Agent.new(url: '0.0.0.0:9999').start }
+  let(:node2) { GlooX::Agent.new(url: '0.0.0.0:9998', peer: '0.0.0.0:9999').start }
 
   before do
     node1

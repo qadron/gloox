@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe GlooX::Client do
   let(:url) { '0.0.0.0:9997' }
-  let(:node) { GlooX::Node.new(url: url).start }
+  let(:node) { GlooX::Agent.new(url: url).start }
   
   before do
     node

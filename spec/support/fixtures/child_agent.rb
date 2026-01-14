@@ -1,6 +1,6 @@
 require 'gloox'
 
-class MyNode < GlooX::Node
+class MyAgent < GlooX::Agent
     Slotz::Reservation.provision(
       self,
       disk:   1 * 1_000_000_000, # bytes
@@ -10,7 +10,7 @@ end
 
 return unless $execute
 
-my_node = MyNode.new( url: $options[:url] ).start
+my_node = MyAgent.new( url: $options[:url] ).start
 
 # Keep the process alive until killed by signal
 trap('INT') { exit }
