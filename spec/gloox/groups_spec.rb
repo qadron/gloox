@@ -7,6 +7,8 @@ RSpec.describe 'GlooX Groups' do
   let(:node2) { GlooX::Node.new(url: 'localhost:9998', peer: 'localhost:9999').start }
 
   before do
+    node1  # Force evaluation to start node1
+    node2  # Force evaluation to start node2
     node1.create_channel('my_nodes')
     sleep 1
   end
