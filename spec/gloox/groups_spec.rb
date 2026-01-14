@@ -3,17 +3,19 @@
 require 'spec_helper'
 
 RSpec.describe 'GlooX Groups' do
-  let(:node1) { GlooX::Node.new(url: 'localhost:9999').start }
-  let(:node2) { GlooX::Node.new(url: 'localhost:9998', peer: 'localhost:9999').start }
+  let(:node1) { GlooX::Node.new(url: '0.0.0.0:9999').start }
+  let(:node2) { GlooX::Node.new(url: '0.0.0.0:9998', peer: '0.0.0.0:9999').start }
 
   before do
+    node1
+    node2
     node1.create_channel('my_nodes')
     sleep 1
   end
 
   after do
-      node1.stop
-      node2.stop
+      node1.shutdown
+      node2.shutdown
       sleep 2
   end
 
