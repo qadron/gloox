@@ -6,8 +6,14 @@ module GlooX
 class Agent < Tiq::Node
     PREFERENCE_STRATEGIES = Set.new([nil, :horizontal, :vertical, :direct])
 
+    class<<self
+        def connect( options = {} )
+            Tiq::Client.new( options )
+        end
+    end
+
     def initialize(*)
-        super
+        super(*)
 
         @loader = ::Slotz::Loader.new
     end

@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe GlooX::Agent do
-  let(:node_port) { 9999 }
-  let(:node) { described_class.new(url: "0.0.0.0:#{node_port}" ) }
-  let(:client) { GlooX::Client.new url: node.url }
+  let(:agent_port) { 9999 }
+  let(:agent) { described_class.new(url: "0.0.0.0:#{agent_port}" ) }
+  let(:client) { GlooX::Client.new url: agent.url }
   let(:spawn_options) do
       [
         'MyAgent',
@@ -15,16 +15,16 @@ RSpec.describe GlooX::Agent do
   end
 
   before :each do
-      node.start
+      agent.start
   end
   after :each do
-      node.shutdown
+      agent.shutdown
       sleep 2
   end
 
   describe '#start' do
-    it 'starts the node successfully' do
-      expect { node }.not_to raise_error
+    it 'starts the agent successfully' do
+      expect { agent }.not_to raise_error
     end
   end
 
@@ -47,7 +47,7 @@ RSpec.describe GlooX::Agent do
 
   describe '#utilization' do
     it 'returns the current utilization' do
-      expect(node.utilization).to be_a(Float)
+      expect(agent.utilization).to be_a(Float)
     end
   end
 
@@ -58,7 +58,7 @@ RSpec.describe GlooX::Agent do
           "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*(options | [:horizontal]))
-        expect(url).to eq("0.0.0.0:#{node_port}")
+        expect(url).to eq("0.0.0.0:#{agent_port}")
       end
     end
 
@@ -77,17 +77,17 @@ RSpec.describe GlooX::Agent do
           "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*(options | [:vertical]))
-        expect(url).to eq("0.0.0.0:#{node_port}")
+        expect(url).to eq("0.0.0.0:#{agent_port}")
       end
     end
 
     context 'with direct strategy' do
-      it 'returns the current node URL' do
+      it 'returns the current agent URL' do
         options = ['MyAgent',
           "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*(options | [:direct]))
-        expect(url).to eq("0.0.0.0:#{node_port}")
+        expect(url).to eq("0.0.0.0:#{agent_port}")
       end
     end
 
@@ -97,20 +97,20 @@ RSpec.describe GlooX::Agent do
           "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb"]
 
         url = client.preferred(*options)
-        expect(url).to eq("0.0.0.0:#{node_port}")
+        expect(url).to eq("0.0.0.0:#{agent_port}")
       end
     end
   end
 
   describe '#fits?' do
-    it 'returns true when a class fits on the node' do
-      result = node.fits?('MyAgent', "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb")
+    it 'returns true when a class fits on the agent' do
+      result = agent.fits?('MyAgent', "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb")
       expect(result).to be_truthy
     end
 
     it 'works with callback block' do
       result = nil
-      node.fits?('MyAgent', "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb") do |fits|
+      agent.fits?('MyAgent', "#{File.dirname(__FILE__)}/../support/fixtures/child_agent.rb") do |fits|
         result = fits
       end
       expect(result).to be_truthy
