@@ -6,10 +6,13 @@ module GlooX
 class Agent < Tiq::Node
     PREFERENCE_STRATEGIES = Set.new([nil, :horizontal, :vertical, :direct])
 
-    def initialize(*)
-        super
+    attr_accessor :weight
+
+    def initialize(*);
+        super;
 
         @loader = ::Slotz::Loader.new
+        @weight = 1.0
     end
 
     def spawn( klass, path, options = {}, strategy = nil, &block )
@@ -17,7 +20,7 @@ class Agent < Tiq::Node
 
         if !PREFERENCE_STRATEGIES.include? strategy
             block.call :error_unknown_strategy
-            raise ArgumentError, "Unknown strategy: #{strategy}"
+            raise ArgumentError, "Unknown strategy: \\\#{strategy}"
         end
 
         if !grid_member?
@@ -75,7 +78,7 @@ class Agent < Tiq::Node
         strategy = (strategy || :vertical).to_sym
         if !PREFERENCE_STRATEGIES.include? strategy
             block.call :error_unknown_strategy
-            raise ArgumentError, "Unknown strategy: #{strategy}"
+            raise ArgumentError, "Unknown strategy: \\\#{strategy}"
         end
 
         if strategy == :direct || !grid_member?
@@ -94,12 +97,13 @@ class Agent < Tiq::Node
             return
         end
 
-        pick_utilization = proc do |url, utilization|
+        pick_utilization = proc do |url, utilization, weight|
             (utilization >= 1 || utilization.rpc_exception?) ?
-              nil : [url, utilization]
+              nil : [url, utilization, weight]
         end
 
-        adjust_score_by_strategy = proc do |score|
+        adjust_score_by_strategy = proc do |utilization, weight|
+            score = utilization * weight
             case strategy
                 when :horizontal
                     score
@@ -112,7 +116,9 @@ class Agent < Tiq::Node
         each = proc do |peer, iter|
             connect_to_peer( peer ).fits?( klass, path ) do |fit, utilization|
                 if fit.nil? || fit
-                    iter.return pick_utilization.call( peer, utilization )
+                    connect_to_peer( peer ).weight do |weight|
+                        iter.return pick_utilization.call( peer, utilization, weight )
+                    end
                 else
                     iter.return
                 end
@@ -122,7 +128,7 @@ class Agent < Tiq::Node
         after = proc do |nodes|
             fits = fits?( klass, path )
             if fits.nil? || fits
-                nodes << pick_utilization.call( @url, self.utilization )
+                nodes << pick_utilization.call( @url, self.utilization, @weight )
             end
             nodes.compact!
 
@@ -132,7 +138,9 @@ class Agent < Tiq::Node
                 next
             end
 
-            block.call nodes.sort_by { |_, score| adjust_score_by_strategy.call score }[0][0]
+            block.call nodes.sort_by { |_, utilization, weight| 
+                adjust_score_by_strategy.call(utilization, weight) 
+            }[0][0]
         end
 
         @reactor.create_iterator( @peers ).map( each, after )
