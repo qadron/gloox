@@ -13,8 +13,8 @@ class Agent < Tiq::Node
 
         @loader = ::Slotz::Loader.new
 
-        if options[:weight] && options[:weight].is_a?( Float )
-            @weight = options[:weight]
+        if @options[:weight] && @options[:weight].is_a?( Float )
+            @weight = @options[:weight]
         else
             @weight = 1.0
         end
