@@ -25,7 +25,7 @@ class Agent < Tiq::Node
 
         if !PREFERENCE_STRATEGIES.include? strategy
             block.call :error_unknown_strategy
-            raise ArgumentError, "Unknown strategy: \\\#{strategy}"
+            raise ArgumentError, "Unknown strategy: #{strategy}"
         end
 
         if !grid_member?
